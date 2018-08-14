@@ -23,7 +23,7 @@ func Init(cfg string) error {
 	}
 
 	//初始化日志
-	c.initConfig()
+	c.initLog()
 
 	//监控配置文件变化并热加载
 	c.watchConfig()

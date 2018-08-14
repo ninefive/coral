@@ -1,18 +1,18 @@
 runmode: debug
-addr: 9001
+addr: :9001
 name: coral
 url: http://localhost:9001
 max_ping_count: 10
 jwt_secret: qazxswedcvfrtgbnhyujmkiol0987654321
-tls:
-  addr: 9002
-  cert: conf/server.crt
-  key: conf/server.key
+app:
+  read_timeout: 5
+  write_timeout: 10
+  max_header_bytes: 1048576
 log:
   writers: stdout
   logger_level: DEBUG
   logger_file: log/coral.log
-  log_format_text: true
+  log_format: true
   rollingPolicy: size
   log_rotate_date: 1
   log_rotate_size: 1

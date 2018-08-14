@@ -11,6 +11,7 @@ import (
 )
 
 func Init(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
+	//middlewares.
 	g.Use(gin.Recovery())
 	g.Use(middleware.NoCache)
 	g.Use(middleware.Options)
@@ -31,6 +32,7 @@ func Init(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	g.POST("/login", user.Login)
 
 	u := g.Group("/u/v1/user")
+	u.Use(middleware.Auth())
 	{
 		u.POST("", user.Create)
 		u.DELETE("/:id", user.Delete)
@@ -39,9 +41,9 @@ func Init(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		u.GET("/:username", user.Get)
 	}
 
-	h := g.Group("/health")
+	h := g.Group("/monitor")
 	{
-		h.GET("/health", health.HealthCheck)
+		h.GET("/ping", health.HealthCheck)
 		h.GET("/disk", health.DiskCheck)
 		h.GET("/cpu", health.CPUCheck)
 		h.GET("/mem", health.RAMCheck)

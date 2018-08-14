@@ -34,7 +34,7 @@ func Logging() gin.HandlerFunc {
 			return
 		}
 
-		if path == "/sd/health" || path == "/sd/ram" || path == "/sd/cpu" || path == "/sd/disk" {
+		if path == "/monitor/ping" || path == "/monitor/mem" || path == "/monitor/cpu" || path == "/monitor/disk" {
 			return
 		}
 

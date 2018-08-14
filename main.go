@@ -2,13 +2,14 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"net/http"
+	//	"net/http"
 	_ "net/http/pprof"
 	"os"
+	"syscall"
 	"time"
 
+	"github.com/fvbock/endless"
 	"github.com/gin-gonic/gin"
 
 	"github.com/ninefive/coral/middleware"
@@ -41,6 +42,7 @@ func main() {
 		return
 	}
 
+	//init config
 	if err := setting.Init(*cfg); err != nil {
 		panic(err)
 	}
@@ -62,33 +64,19 @@ func main() {
 		middleware.RequestId(),
 	)
 
-	go func() {
-		if err := pingServer(); err != nil {
-			log.Fatal("The router has no response, or it might took too long to start up.", err)
-		}
-		log.Info("The router has been deployed successfully.")
-	}()
+	endPoint := viper.GetString("addr")
+	readTimeout := time.Duration(viper.GetInt("read_timeout"))
+	writeTimeout := time.Duration(viper.GetInt("write_timeout"))
+	maxHeaderBytes := viper.GetInt("max_header_bytes")
 
-	cert := viper.GetString("tls.cert")
-	key := viper.GetString("tls.key")
-	if cert != "" && key != "" {
-		go func() {
-			log.Infof("Start to listening the incoming requests on https address: %s", viper.GetString("tls.addr"))
-			log.Info(http.ListenAndServeTLS(viper.GetString("tls.addr"), cert, key, g).Error())
-		}()
+	endless.DefaultReadTimeOut = readTimeout
+	endless.DefaultWriteTimeOut = writeTimeout
+	endless.DefaultMaxHeaderBytes = maxHeaderBytes
+	server := endless.NewServer(endPoint, g)
+	server.BeforeBegin = func(add string) {
+		log.Infof("Actual pid is %d", syscall.Getpid())
 	}
-}
 
-func pingServer() error {
-	for i := 0; i < viper.GetInt("max_ping_count"); i++ {
-		resp, err := http.Get(viper.GetString("url") + "/health/ping")
-		if err == nil && resp.StatusCode == 200 {
-			return nil
-		}
-
-		log.Info("Waiting for the router, retry in 1 second.")
-		time.Sleep(time.Second)
-
-	}
-	return errors.New("Cannot connect to the router.")
+	log.Infof("Start to listening the incoming requests on http address: %s", viper.GetString("addr"))
+	log.Info(server.ListenAndServe().Error())
 }

@@ -48,6 +48,7 @@ func InitSelfDB() *gorm.DB {
 	)
 }
 
+/*
 func GetSelfDB() *gorm.DB {
 	return InitSelfDB()
 }
@@ -64,10 +65,11 @@ func InitDockerDB() *gorm.DB {
 func GetDockerDB() *gorm.DB {
 	return InitDockerDB()
 }
+*/
 
 func (db *Database) Init() {
 	DB = &Database{
-		Self: GetSelfDB(),
+		Self: InitSelfDB(),
 		//		Docker: GetDockerDB(),
 	}
 }
